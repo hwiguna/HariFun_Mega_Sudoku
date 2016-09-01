@@ -1,1 +1,1 @@
-![Mega Sudoku](/HariFun_Mega_Sudoku/Photos/20160830_015345.jpg?raw=true)
+![Mega Sudoku](/Photos/20160830_015345.jpg?raw=true)
