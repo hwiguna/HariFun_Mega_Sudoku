@@ -72,7 +72,8 @@ void setup() {
   pinMode(COL_8_PIN, OUTPUT);
 
   EraseAll();
-  FillSudoku1();
+  //FillSudoku1();
+  FillAll8();
 
   SetupTimer();
 }
@@ -142,12 +143,26 @@ void FillHorizontally()
 
 void FillSudoku1()
 {
-  for (byte c = 0; c < 9; c++)
+  for (byte t = 0; t < 3; t++)
   {
-    //delay(100);
-    sudoku[0][c] = c + 1;
-    sudoku[1][c] = ((c + 3) % 9) + 1;
-    sudoku[2][c] = ((c + 6) % 9) + 1;
+    for (byte c = 0; c < 9; c++)
+    {
+      //delay(100);
+      sudoku[t * 3 + 0][c] = c + 1;
+      sudoku[t * 3 + 1][c] = ((c + 3) % 9) + 1;
+      sudoku[t * 3 + 2][c] = ((c + 6) % 9) + 1;
+    }
+  }
+}
+
+void FillAll8()
+{
+  for (byte t = 0; t < 9; t++)
+  {
+    for (byte c = 0; c < 9; c++)
+    {
+      sudoku[t][c] = 8;
+    }
   }
 }
 
@@ -156,14 +171,14 @@ void loop() {
   //  FillVertically();
   //  delay(1000);
 
-//  EraseAll();
-//  FillHorizontally();
-//  delay(1000);
+  //  EraseAll();
+  //  FillHorizontally();
+  //  delay(1000);
 
-//  for (byte n = 0; n < 3; n++)
-//  {
-//    EraseAll();
-//    FillRandomly();
-//    delay(1000);
-//  }
+  //  for (byte n = 0; n < 3; n++)
+  //  {
+  //    EraseAll();
+  //    FillRandomly();
+  //    delay(1000);
+  //  }
 }
