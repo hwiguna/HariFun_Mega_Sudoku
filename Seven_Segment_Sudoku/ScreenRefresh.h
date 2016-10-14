@@ -1,35 +1,17 @@
-void ClearAllColumns()
+void SetColumn(byte col, byte state)
 {
-  // turn off the special 9th column
-  digitalWrite(COL_8_PIN, LOW);
-
-  // Turn off all bits of column shift register
-  digitalWrite(COL_LATCH_PIN, LOW);
-  shiftOut(COL_SER_PIN, COL_CLK_PIN, MSBFIRST, 0);
-  digitalWrite(COL_LATCH_PIN, HIGH);
+  digitalWrite(COL_9_PIN-col, state);
 }
 
-void SetColumn(byte col)
+void DisplayDigit(byte digit, byte dotState)
 {
-  if (col == 8) {
-    // turn on the special 9th column
-    digitalWrite(COL_8_PIN, HIGH);
-  }
-  else
-  {
-    // Turn on the requested column (0..7)
-    byte colByte = 0;
-    bitSet(colByte, col);
-    digitalWrite(COL_LATCH_PIN, LOW);
-    shiftOut(COL_SER_PIN, COL_CLK_PIN, MSBFIRST, colByte);
-    digitalWrite(COL_LATCH_PIN, HIGH);
-  }
-}
-
-void DisplayDigit(byte digit)
-{
-  byte segByte = digitBits[digit];
+  byte segByte = digitBits[digit] | dotState;
   shiftOut(SEG_SER_PIN, SEG_CLK_PIN, LSBFIRST, ~segByte);
+}
+
+void SetDot(byte row, byte col, byte state)
+{
+  dots[row][col]=state;
 }
 
 void Refresh(void)
@@ -38,14 +20,14 @@ void Refresh(void)
 
   if (gRow == 0) digitalWrite(SEG_LATCH_PIN, LOW); // Do not reflect bit changes as we're setting up 9 rows of digits for upcoming column
 
-  DisplayDigit( sudoku[8 - gRow][gCol] ); // Shift the digit bits, last row first
-  //DisplayDigit( sudoku[gRow][gCol] ); // Shift the digit bits, last row first
+  DisplayDigit( sudoku[gRow][gCol], dots[gRow][gCol] ); // Shift the digit bits, last row first
 
   if (gRow == 8) {
     // We've shifted all 9 vertical digits
-    ClearAllColumns(); // Turn off all columns so we won't have shadow of previous column in the new current column
+    SetColumn(gPrevCol, LOW); // Turn off previous column
     digitalWrite(SEG_LATCH_PIN, HIGH); // Slam all 9 vertical digits to output pins
-    SetColumn(gCol); // Turn on JUST the "current" colum
+    SetColumn(gCol, HIGH); // Turn on JUST the "current" colum
+    gPrevCol = gCol;
     if (++gCol > 8) gCol = 0;
   }
 

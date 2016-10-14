@@ -1,6 +1,8 @@
 
 // Seven Segment Sudoku - Hari Wiguna, 2016
 
+// v0.05 - Remove Column shift register.
+           Code now works with PCB version. digitBits is now inverted 180 degrees so the decimal point is at top.
 // v0.04 - Draw one digit per interrupt.
 //         Drawing the whole column (9 vertical digits) took longer than interrupt cycle.
 //         Now we leave the column alone while we draw a new row for the upcoming column at each interrupt.
@@ -19,32 +21,28 @@
 //        D8 drives the 9th column (digit).
 
 //== Arduino Pin configuration ==
-const byte COL_CLK_PIN = 2;
-const byte COL_LATCH_PIN = 3;
-const byte COL_SER_PIN = 4;
+const byte COL_9_PIN = 10; // D10..D2 controls column 0..9
 
-const byte COL_8_PIN = 8; // Shift register only has 8 columns, so handle 9th column special
-
-const byte SEG_CLK_PIN = 5;
-const byte SEG_LATCH_PIN = 6;
-const byte SEG_SER_PIN = 7;
+const byte SEG_CLK_PIN = 11;
+const byte SEG_LATCH_PIN = 12;
+const byte SEG_SER_PIN = 13;
 
 //== Digit bitmaps ==
 volatile byte digitBits[] = {
   B00000000, // 0
   B00001100, // 1
   B11011010, // 2
-  B11110010, // 3
-  B01100110, // 4
+  B10011110, // 3
+  B00101110, // 4
   B10110110, // 5
-  B10111110, // 6
-  B11100000, // 7
+  B11110110, // 6
+  B00011100, // 7
   B11111110, // 8
-  B11110110, // 9
+  B10111110, // 9
 };
 
 //== Sudoku Variables ==
-byte sudoku[][9] = {
+volatile byte sudoku[][9] = {
   {1, 2, 3, 0, 0, 6, 7, 0, 9},
   {2, 3, 4, 5, 6, 7, 8, 9, 1},
   {3, 4, 5, 6, 7, 8, 9, 1, 2},
@@ -58,25 +56,43 @@ byte sudoku[][9] = {
   {9, 1, 2, 3, 4, 5, 6, 7, 8}
 };
 
+volatile byte dots[9][9];
+
 volatile int8_t gRow = 0;
 volatile int8_t gCol = 0;
+volatile int8_t gPrevCol = 0;
 #include "ScreenRefresh.h"
 
 void setup() {
-  pinMode(COL_CLK_PIN, OUTPUT);
-  pinMode(COL_LATCH_PIN, OUTPUT);
-  pinMode(COL_SER_PIN, OUTPUT);
   pinMode(SEG_CLK_PIN, OUTPUT);
   pinMode(SEG_LATCH_PIN, OUTPUT);
   pinMode(SEG_SER_PIN, OUTPUT);
-  pinMode(COL_8_PIN, OUTPUT);
+
+  for (byte i = 0; i < 9; i++)
+    pinMode(COL_9_PIN - i, OUTPUT);
 
   EraseAll();
   //FillSudoku1();
-  FillAll8();
-
-  SetupTimer();
+  //FillAll8();
+  FillRandomly();
+  SetupTimer();  
 }
+
+void TopLeftDots()
+{
+  for (byte r = 0; r < 3; r++)
+      for (byte c = 0; c < 3; c++)
+        dots[r][c] = 1;
+}
+
+void ClearDots()
+{
+  for (byte r = 0; r < 9; r++)
+      for (byte c = 0; c < 9; c++)
+        dots[r][c] = 0;
+}
+
+
 
 void SegmentTest()
 {
@@ -166,6 +182,18 @@ void FillAll8()
   }
 }
 
+
+void FillCount()
+{
+  for (byte i = 1; i <= 9; i++)
+  {
+    for (byte t = 0; t < 9; t++)
+      for (byte c = 0; c < 9; c++)
+        sudoku[t][c] = i;
+    delay(200);
+  }
+}
+
 void loop() {
   //  EraseAll();
   //  FillVertically();
@@ -181,4 +209,9 @@ void loop() {
   //    FillRandomly();
   //    delay(1000);
   //  }
+  
+  TopLeftDots();
+  delay(200);
+  ClearDots();
+  delay(200);
 }
