@@ -2,7 +2,7 @@
 // Seven Segment Sudoku - Hari Wiguna, 2016
 
 // v0.05 - Remove Column shift register.
-           Code now works with PCB version. digitBits is now inverted 180 degrees so the decimal point is at top.
+//           Code now works with PCB version. digitBits is now inverted 180 degrees so the decimal point is at top.
 // v0.04 - Draw one digit per interrupt.
 //         Drawing the whole column (9 vertical digits) took longer than interrupt cycle.
 //         Now we leave the column alone while we draw a new row for the upcoming column at each interrupt.
@@ -58,6 +58,19 @@ volatile byte sudoku[][9] = {
 
 volatile byte dots[9][9];
 
+volatile byte blinkBits[][2] = {
+  {0,0},
+  {0,1},
+  {0,2},
+  {1,2},
+  {2,2},
+  {2,1},
+  {2,0},
+  {1,0}
+  };
+byte blinkCount=0;
+byte prevBlinkCount=0;
+
 volatile int8_t gRow = 0;
 volatile int8_t gCol = 0;
 volatile int8_t gPrevCol = 0;
@@ -75,21 +88,21 @@ void setup() {
   //FillSudoku1();
   //FillAll8();
   FillRandomly();
-  SetupTimer();  
+  SetupTimer();
 }
 
 void TopLeftDots()
 {
   for (byte r = 0; r < 3; r++)
-      for (byte c = 0; c < 3; c++)
-        dots[r][c] = 1;
+    for (byte c = 0; c < 3; c++)
+      dots[r][c] = 1;
 }
 
 void ClearDots()
 {
   for (byte r = 0; r < 9; r++)
-      for (byte c = 0; c < 9; c++)
-        dots[r][c] = 0;
+    for (byte c = 0; c < 9; c++)
+      dots[r][c] = 0;
 }
 
 
@@ -128,7 +141,7 @@ void FillRandomly()
   {
     for (byte c = 0; c < 9; c++)
     {
-      sudoku[r][c] = random(1, 10);
+      sudoku[r][c] = random(0, 10);
     }
   }
 }
@@ -209,9 +222,23 @@ void loop() {
   //    FillRandomly();
   //    delay(1000);
   //  }
-  
-  TopLeftDots();
-  delay(200);
-  ClearDots();
-  delay(200);
+
+  AnimateDots();
+  delay(50);
 }
+
+void AnimateDots() 
+{
+  byte r = blinkBits[prevBlinkCount][0];
+  byte c = blinkBits[prevBlinkCount][1];
+  dots[r][c] = 0;
+  
+  if (++blinkCount>=9) blinkCount=0;
+  
+  r = blinkBits[blinkCount][0];
+  c = blinkBits[blinkCount][1];
+  dots[r][c] = 1;
+  
+  prevBlinkCount = blinkCount;
+}
+
