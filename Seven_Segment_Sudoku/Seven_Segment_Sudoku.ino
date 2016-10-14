@@ -59,17 +59,17 @@ volatile byte sudoku[][9] = {
 volatile byte dots[9][9];
 
 volatile byte blinkBits[][2] = {
-  {0,0},
-  {0,1},
-  {0,2},
-  {1,2},
-  {2,2},
-  {2,1},
-  {2,0},
-  {1,0}
-  };
-byte blinkCount=0;
-byte prevBlinkCount=0;
+  {0, 0},
+  {0, 1},
+  {0, 2},
+  {1, 2},
+  {2, 2},
+  {2, 1},
+  {2, 0},
+  {1, 0}
+};
+byte blinkCount = 0;
+byte prevBlinkCount = 0;
 
 volatile int8_t gRow = 0;
 volatile int8_t gCol = 0;
@@ -224,21 +224,22 @@ void loop() {
   //  }
 
   AnimateDots();
-  delay(50);
+  delay(75);
 }
 
-void AnimateDots() 
+void AnimateDots()
 {
-  byte r = blinkBits[prevBlinkCount][0];
-  byte c = blinkBits[prevBlinkCount][1];
-  dots[r][c] = 0;
-  
-  if (++blinkCount>=9) blinkCount=0;
-  
-  r = blinkBits[blinkCount][0];
-  c = blinkBits[blinkCount][1];
-  dots[r][c] = 1;
-  
-  prevBlinkCount = blinkCount;
+    byte r = blinkBits[prevBlinkCount][0];
+    byte c = blinkBits[prevBlinkCount][1];
+    dots[r][c] = 0;
+
+    if (++blinkCount > 9) blinkCount = 0;
+
+    r = blinkBits[blinkCount][0];
+    c = blinkBits[blinkCount][1];
+    dots[r][c] = 1;
+    
+    prevBlinkCount = blinkCount-2;
+    if (prevBlinkCount<0) prevBlinkCount+8;
 }
 
