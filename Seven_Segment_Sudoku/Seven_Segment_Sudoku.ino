@@ -1,6 +1,33 @@
 
 // Seven Segment Sudoku - Hari Wiguna, 2016
 
+//keypad handling
+//marching ants
+//play game
+
+//A - After (show original and guessed numbers)
+//B - Before (show only original numbers)
+//C - 
+//D - 
+//0 - Erase
+//* - Pick Cell mode (toggles)
+//# -
+//
+//Generate puzzle
+//show puzzle
+//quit
+//reset
+//check win
+//fanfare
+//help modes
+//enter puzzle
+//enter possibles
+//show possibles
+//Dimming
+//save puzzle state to flash
+//Show bad move
+
+
 // v0.05 - Remove Column shift register.
 //           Code now works with PCB version. digitBits is now inverted 180 degrees so the decimal point is at top.
 // v0.04 - Draw one digit per interrupt.
@@ -26,6 +53,10 @@ const byte COL_9_PIN = 10; // D10..D2 controls column 0..9
 const byte SEG_CLK_PIN = 11;
 const byte SEG_LATCH_PIN = 12;
 const byte SEG_SER_PIN = 13;
+
+//== Keypad ==
+int thresholds[16] = {0, 77, 144, 202, 244, 290, 331, 368, 394, 424, 452, 477, 496, 518, 538, 556};
+char keypad[16] = {1, 2, 3, 10, 4, 5, 6, 11, 7, 8, 9, 12, 14, 0, 15, 13}; // A=10,B=11,C=12,D=13,*=14,#=15
 
 //== Digit bitmaps ==
 volatile byte digitBits[] = {
@@ -83,7 +114,9 @@ void setup() {
 
   for (byte i = 0; i < 9; i++)
     pinMode(COL_9_PIN - i, OUTPUT);
-
+    
+  //Serial.begin(9600);
+  
   EraseAll();
   //FillSudoku1();
   //FillAll8();
@@ -184,13 +217,13 @@ void FillSudoku1()
   }
 }
 
-void FillAll8()
+void FillAll(byte number)
 {
   for (byte t = 0; t < 9; t++)
   {
     for (byte c = 0; c < 9; c++)
     {
-      sudoku[t][c] = 8;
+      sudoku[t][c] = number;
     }
   }
 }
@@ -223,8 +256,10 @@ void loop() {
   //    delay(1000);
   //  }
 
-  AnimateDots();
-  delay(75);
+  //AnimateDots();
+  //delay(75);
+
+  WaitForKeypress();
 }
 
 void AnimateDots()
@@ -241,5 +276,22 @@ void AnimateDots()
     
     prevBlinkCount = blinkCount-2;
     if (prevBlinkCount<0) prevBlinkCount+8;
+}
+
+void WaitForKeypress()
+{
+    int value = analogRead(A0);
+  for (int i = 0; i < 16; i++)
+  {
+    // Is A0 close enough to one of the keypad values?
+    if ( abs(value - thresholds[i]) < 3)
+    {
+      // Yes, translate the index of that value to the actual name of the key
+      //Serial.println(keypad[i]);
+      FillAll(keypad[i]);
+      // Wait until they release the button
+      while (analogRead(A0) < 1000) {delay(100);}
+    }
+  }
 }
 
