@@ -104,7 +104,8 @@ byte prevBlinkCount = 0;
 
 volatile int8_t gRow = 0;
 volatile int8_t gCol = 0;
-volatile int8_t gPrevCol = 0;
+volatile byte refreshRate = 2; // Higher = slower refresh
+volatile byte refreshCounter = 0;
 #include "ScreenRefresh.h"
 
 void setup() {
@@ -114,8 +115,11 @@ void setup() {
 
   for (byte i = 0; i < 9; i++)
     pinMode(COL_9_PIN - i, OUTPUT);
-    
-  //Serial.begin(9600);
+
+  pinMode(A4,OUTPUT);
+  pinMode(A5,OUTPUT);
+  
+  Serial.begin(9600);
   
   EraseAll();
   //FillSudoku1();
@@ -280,18 +284,20 @@ void AnimateDots()
 
 void WaitForKeypress()
 {
-    int value = analogRead(A0);
+  int value = analogRead(A0);
+  Serial.println(value);
   for (int i = 0; i < 16; i++)
   {
     // Is A0 close enough to one of the keypad values?
-    if ( abs(value - thresholds[i]) < 3)
+    if ( abs(value - thresholds[i]) < 4)
     {
       // Yes, translate the index of that value to the actual name of the key
-      //Serial.println(keypad[i]);
+      Serial.println(keypad[i]);
       FillAll(keypad[i]);
       // Wait until they release the button
       while (analogRead(A0) < 1000) {delay(100);}
     }
   }
+  //delayMicroseconds(10);
 }
 

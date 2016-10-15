@@ -1,21 +1,20 @@
 void SetColumn(byte col, byte state)
 {
-  digitalWrite(COL_9_PIN-col, state);
+  digitalWrite(COL_9_PIN - col, state);
 }
 
 void FastSetColumn(byte col)
 {
-  int bits = 0;
-  if (col<6) {
-    //bitSet(bits,col);
-    bits = 1 << (col+2);
-    PORTD = (PORTD & 0x00000011) | bits; // set appropriate bit of port D (D2..D7)
-    PORTB = PORTB & 0x11111000; // clear lowest three bits of Port B (D8,D9,D10)
+  byte bits = 0;
+  if (col < 6) {
+    bits = 1 << (col + 2); // Col0 = Port D bit 2
+    PORTD = (PORTD & B00000011) | bits; // set appropriate bit of port D (D2..D7)
+    PORTB = PORTB & B11111000; // clear lowest three bits of Port B (D8,D9,D10)
   } else
   {
-    bits = 1 << (col-6);
-    PORTD = PORTD & 0x00000011; // clear all but the bottom two bits (TX/RX) of port D (D2..D7)
-    PORTB = (PORTB & 0x11111000) | bits; // set appropriate bit of port B (D8,D9,D10)
+    bits = 1 << (col - 6); // col6 = Port B bit 0
+    PORTD = PORTD & B00000011; // clear all but the bottom two bits (TX/RX) of port D (D2..D7)
+    PORTB = (PORTB & B11111000) | bits; // set appropriate bit of port B (D8,D9,D10)
   }
 }
 
@@ -27,10 +26,31 @@ void DisplayDigit(byte digit, byte dotState)
 
 void SetDot(byte row, byte col, byte state)
 {
-  dots[row][col]=state;
+  dots[row][col] = state;
 }
 
+
 void Refresh(void)
+{
+  if (--refreshCounter == 0) {
+    refreshCounter = refreshRate;
+    digitalWrite(A5, HIGH); // Debug
+    for (gCol = 0; gCol < 9; gCol++)
+    {
+      digitalWrite(SEG_LATCH_PIN, LOW); // Do not reflect bit changes as we're setting up 9 rows of digits for upcoming column
+      for (gRow = 0; gRow < 9; gRow++)
+      {
+        DisplayDigit( sudoku[gRow][gCol], dots[gRow][gCol] ); // Shift the digit bits, last row first
+      }
+      // We've shifted all 9 vertical digits
+      digitalWrite(SEG_LATCH_PIN, HIGH); // Slam all 9 vertical digits to output pins
+      FastSetColumn(gCol);
+    }
+    digitalWrite(A5, LOW); // Debug
+  }
+}
+
+void RefreshUsingCounters(void)
 {
   //noInterrupts();
 
@@ -55,25 +75,39 @@ void Refresh(void)
 
 void SetupTimer()
 {
-  cli();
-  // Reset any PWM that arduino may have setup automatically
-  TCCR2A = 0;
-  TCCR2B = 0;
-
-  TCCR2A |= (1 << WGM21); // CTC mode. Reset counter when OCR2 is reached
-
-  TCCR2B |= (1 << CS21) | (1 << CS22); // Prescaler = 256
-  //TCCR2B |= (1 << CS20) | (1 << CS22); // Prescaler = 128
-  OCR2A = 10; // Fire interrupt when timer2 has looped 14 times
-
-  TCNT2 = 0; // initial counter value = 0;
-  TIMSK2 |= (1 << OCIE2A); // Enable CTC interrupt
-  sei();
+  OCR0A = 0xFF; // When timer0 reaches this value, fire TIMER0_COMPA_vect
+  TIMSK0 |= _BV(OCIE0A);
 }
 
-ISR (TIMER2_COMPA_vect)
+SIGNAL(TIMER0_COMPA_vect)
 {
+  digitalWrite(A4, HIGH); // Debug
+  digitalWrite(A4, LOW); // Debug
   Refresh();
+  //RefreshUsingCounters();
 }
+
+//void SetupTimer()
+//{
+//  cli();
+//  // Reset any PWM that arduino may have setup automatically
+//  TCCR2A = 0;
+//  TCCR2B = 0;
+//
+//  TCCR2A |= (1 << WGM21); // CTC mode. Reset counter when OCR2 is reached
+//
+//  TCCR2B |= (1 << CS21) | (1 << CS22); // Prescaler = 256
+//  //TCCR2B |= (1 << CS20) | (1 << CS22); // Prescaler = 128
+//  OCR2A = 200; // Fire interrupt when timer2 has looped 14 times
+//
+//  TCNT2 = 0; // initial counter value = 0;
+//  TIMSK2 |= (1 << OCIE2A); // Enable CTC interrupt
+//  sei();
+//}
+//
+//ISR (TIMER2_COMPA_vect)
+//{
+//  Refresh();
+//}
 
 
