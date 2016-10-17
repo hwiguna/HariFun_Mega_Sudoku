@@ -6,3 +6,4 @@
 volatile byte gameMode = MODE_UNKNOWN;
 volatile byte selectedBox = 0;
 volatile byte selectedCell = 0;
+volatile byte selectedDigit = 0;

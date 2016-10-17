@@ -72,6 +72,17 @@ void PleaseSelectDigit()
   dots[boxColOffset + cellColOffset][boxRowOffset + cellRowOffset] = 1;
 }
 
+void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
+{
+  byte boxColOffset = (selectedBox % 3) * 3;
+  byte boxRowOffset = (selectedBox / 3) * 3;
+
+  byte cellColOffset = (selectedCell % 3);
+  byte cellRowOffset = (selectedCell / 3);
+
+  sudoku[boxColOffset + cellColOffset][boxRowOffset + cellRowOffset] = selectedDigit;
+}
+
 //
 //void AnimateDots()
 //{

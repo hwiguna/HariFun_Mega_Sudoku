@@ -7,6 +7,7 @@ void HandleKeypress(char keyPress)
 {
   switch (keyPress) {
     case 10:
+      ClearSelection();
       gameMode = MODE_PICK_BOX;
       break;
     case 11:
@@ -14,7 +15,7 @@ void HandleKeypress(char keyPress)
     case 13:
     case 14:
     case 15:
-          ClearSelection();
+      ClearSelection();
       gameMode = MODE_UNKNOWN;
       break;
     default:
@@ -28,6 +29,11 @@ void HandleKeypress(char keyPress)
           ClearSelection();
           selectedCell = keyPress - 1;
           gameMode = MODE_PICK_DIGIT;
+          break;
+        case MODE_PICK_DIGIT:
+          selectedDigit = keyPress;
+          SetDigit(selectedBox, selectedCell, selectedDigit);
+          break;
       }
       break;
   }
