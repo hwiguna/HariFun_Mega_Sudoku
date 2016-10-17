@@ -1,3 +1,95 @@
+//== Digit bitmaps ==
+volatile byte digitBits[] = {
+  B00000000, // 0
+  B00001100, // 1
+  B11011010, // 2
+  B10011110, // 3
+  B00101110, // 4
+  B10110110, // 5
+  B11110110, // 6
+  B00011100, // 7
+  B11111110, // 8
+  B10111110, // 9
+};
+
+volatile byte blinkBits[][2] = {
+  {0, 0},
+  {0, 1},
+  {0, 2},
+  {1, 2},
+  {2, 2},
+  {2, 1},
+  {2, 0},
+  {1, 0}
+};
+byte blinkCount = 0;
+byte prevBlinkCount = 0;
+
+volatile int8_t gRow = 0;
+volatile int8_t gCol = 0;
+volatile byte refreshRate = 2; // Higher = slower refresh
+volatile byte refreshCounter = 0;
+
+//-----------------------------------------------------------------
+
+void PleaseSelectBox()
+{
+  for (byte i = 0; i < 9; i++) {
+    dots[0][i] = 1;
+    dots[8][i] = 1;
+    dots[i][0] = 1;
+    dots[i][8] = 1;
+  }
+}
+
+void ClearSelection()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+      dots[r][c] = 0;
+}
+
+void PleaseSelectCell()
+{
+  byte colOffset = (selectedBox % 3) * 3;
+  byte rowOffset = (selectedBox / 3) * 3;
+  for (byte i = 0; i < 3; i++) {
+    dots[colOffset + 0][rowOffset + i] = 1;
+    dots[colOffset + 2][rowOffset + i] = 1;
+    dots[colOffset + i][rowOffset + 0] = 1;
+    dots[colOffset + i][rowOffset + 2] = 1;
+  }
+}
+
+void PleaseSelectDigit()
+{
+  byte boxColOffset = (selectedBox % 3) * 3;
+  byte boxRowOffset = (selectedBox / 3) * 3;
+
+  byte cellColOffset = (selectedCell % 3);
+  byte cellRowOffset = (selectedCell / 3);
+
+  dots[boxColOffset + cellColOffset][boxRowOffset + cellRowOffset] = 1;
+}
+
+//
+//void AnimateDots()
+//{
+//    byte r = blinkBits[prevBlinkCount][0];
+//    byte c = blinkBits[prevBlinkCount][1];
+//    dots[r][c] = 0;
+//
+//    if (++blinkCount > 9) blinkCount = 0;
+//
+//    r = blinkBits[blinkCount][0];
+//    c = blinkBits[blinkCount][1];
+//    dots[r][c] = 1;
+//
+//    prevBlinkCount = blinkCount-2;
+//    if (prevBlinkCount<0) prevBlinkCount+8;
+//}
+
+//-----------------------------------------------------------------
 void SetColumn(byte col, byte state)
 {
   digitalWrite(COL_9_PIN - col, state);
@@ -5,6 +97,7 @@ void SetColumn(byte col, byte state)
 
 void FastSetColumn(byte col)
 {
+  col = 8 - col;
   byte bits = 0;
   if (col < 6) {
     bits = 1 << (col + 2); // Col0 = Port D bit 2
@@ -40,13 +133,19 @@ void Refresh(void)
       digitalWrite(SEG_LATCH_PIN, LOW); // Do not reflect bit changes as we're setting up 9 rows of digits for upcoming column
       for (gRow = 0; gRow < 9; gRow++)
       {
-        DisplayDigit( sudoku[gRow][gCol], dots[gRow][gCol] ); // Shift the digit bits, last row first
+        DisplayDigit( sudoku[gCol][gRow], dots[gCol][gRow] ); // Shift the digit bits, last row first
       }
       // We've shifted all 9 vertical digits
       digitalWrite(SEG_LATCH_PIN, HIGH); // Slam all 9 vertical digits to output pins
       FastSetColumn(gCol);
     }
     digitalWrite(A5, LOW); // Debug
+  } else
+  {
+    if (gameMode == MODE_UNKNOWN) ClearSelection();
+    if (gameMode == MODE_PICK_BOX) PleaseSelectBox();
+    if (gameMode == MODE_PICK_CELL) PleaseSelectCell();
+    if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit();
   }
 }
 
