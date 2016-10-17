@@ -18,8 +18,8 @@ volatile byte sudoku[][9] = {
 volatile byte dots[9][9];
 
 //== Marching ant animation ==
-byte antOffset = 0; // 0,1,2 then it cycles back to 0
-byte antSpeed = 1; // How often should we increment antOffset
+volatile byte antOffset = 0; // 0,1,2 then it cycles back to 0
+volatile unsigned long timeToMoveAnts;
 
 //== Functions ==
 
@@ -60,9 +60,9 @@ void FillRandomly()
       sudoku[c][r] = random(0, 10);
     }
   }
-  sudoku[0][0] = 7; 
-  sudoku[1][0] = 7; 
-  sudoku[2][0] = 7; 
+  sudoku[0][0] = 7;
+  sudoku[1][0] = 7;
+  sudoku[2][0] = 7;
 }
 
 void FillVertically()
@@ -131,16 +131,16 @@ void FillCount()
 
 volatile byte blinkBits[][2] = {
   {0, 0},
-  {0, 1},
-  {0, 2},
-  {1, 2},
-  {2, 2},
-  {2, 1},
+  {1, 0},
   {2, 0},
-  {1, 0}
+  {2, 1},
+  {2, 2},
+  {1, 2},
+  {0, 2},
+  {0, 1}
 };
 byte blinkCount = 0;
-byte prevBlinkCount = 0;
+//byte prevBlinkCount = 0;
 
 volatile int8_t gRow = 0;
 volatile int8_t gCol = 0;
@@ -168,16 +168,36 @@ void ClearSelection()
 
 void PleaseSelectCell()
 {
-  byte colOffset = (selectedBox % 3) * 3;
-  byte rowOffset = (selectedBox / 3) * 3;
-  for (byte i = 0; i < 3; i++) {
-    byte offset;
-    offset = colOffset + animOffset; if (offset<3) dots[offset][rowOffset + 0] = 1;  // Top
-    offset = rowOffset + i + animOffset; if (offset<3) dots[colOffset + 2][offset] = 1; // Right
-    offset = colOffset - i - animOffset; if (offset>0) dots[offset][rowOffset + 2] = 1; // Bottom
-    offset = rowOffset - i -animOffset; if (offset>0) dots[colOffset + 0][offset] = 1; // Left
+  if (micros() > timeToMoveAnts)
+  {
+    antOffset++;
+    if (antOffset>2) antOffset = 0;
+    
+    for (byte i = 0; i < 8; i++) {
+
+      byte offset = antOffset + i;
+      if (offset > 7) offset = 7 - offset;
+
+      byte c = blinkBits[offset][0];
+      byte r = blinkBits[offset][1];
+      dots[c][r] = ((i+antOffset) % 3)==0;
+    }
+    timeToMoveAnts = micros() + 50000;
   }
 }
+
+//void PleaseSelectCell_computed()
+//{
+//  byte colOffset = (selectedBox % 3) * 3;
+//  byte rowOffset = (selectedBox / 3) * 3;
+//  for (byte i = 0; i < 3; i++) {
+//    byte offset;
+//    offset = colOffset + animOffset; if (offset < 3) dots[offset][rowOffset + 0] = 1; // Top
+//    offset = rowOffset + i + animOffset; if (offset < 3) dots[colOffset + 2][offset] = 1; // Right
+//    offset = colOffset - i - animOffset; if (offset > 0) dots[offset][rowOffset + 2] = 1; // Bottom
+//    offset = rowOffset - i - animOffset; if (offset > 0) dots[colOffset + 0][offset] = 1; // Left
+//  }
+//}
 
 void PleaseSelectCell_nonAnimated()
 {
