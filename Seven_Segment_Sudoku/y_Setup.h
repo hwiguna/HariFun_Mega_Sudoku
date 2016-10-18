@@ -10,6 +10,8 @@ void setup() {
   pinMode(A5,OUTPUT);
   
   Serial.begin(9600);
+//  Serial.print("animFrameCount=");
+//  Serial.println(animFrameCount);
   
   //EraseAll();
   //FillSudoku1();

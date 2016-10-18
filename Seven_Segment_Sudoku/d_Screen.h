@@ -66,8 +66,8 @@ void Refresh(void)
   } else
   {
     if (gameMode == MODE_UNKNOWN) ClearSelection();
-    if (gameMode == MODE_PICK_BOX) PleaseSelectBox();
-    if (gameMode == MODE_PICK_CELL) PleaseSelectCell();
+    if (gameMode == MODE_PICK_BOX) PleaseSelectBox_Wipe();
+    if (gameMode == MODE_PICK_CELL) PleaseSelectCell_Wipe();
     if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit();
   }
 }
