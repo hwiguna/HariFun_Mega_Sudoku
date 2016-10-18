@@ -19,7 +19,8 @@ volatile byte dots[9][9];
 
 //== Marching ant animation ==
 volatile byte antOffset = 0; // 0,1,2 then it cycles back to 0
-volatile unsigned long timeToMoveAnts;
+volatile unsigned long timeToMove=10;
+volatile byte isOn;
 
 //== Functions ==
 
@@ -168,21 +169,24 @@ void ClearSelection()
 
 void PleaseSelectCell()
 {
-  if (micros() > timeToMoveAnts)
+  //if (micros() > timeToMoveAnts)
+  if (--timeToMove == 0)
   {
     antOffset++;
-    if (antOffset>2) antOffset = 0;
+    if (antOffset>7) {antOffset = 0; isOn=1-isOn;}
+    //antOffset=1;
     
-    for (byte i = 0; i < 8; i++) {
+    //for (byte i = 1; i < 9; i++) {
 
-      byte offset = antOffset + i;
-      if (offset > 7) offset = 7 - offset;
+      byte offset = antOffset;// + i;
+      //if (offset > 7) offset = 8 - offset;
 
       byte c = blinkBits[offset][0];
       byte r = blinkBits[offset][1];
-      dots[c][r] = ((i+antOffset) % 3)==0;
-    }
-    timeToMoveAnts = micros() + 50000;
+      dots[c][r] = isOn; //((antOffset+i) % 3)!=0;
+    //}
+    //timeToMoveAnts = micros() + 500000;
+    timeToMove = 5;
   }
 }
 
