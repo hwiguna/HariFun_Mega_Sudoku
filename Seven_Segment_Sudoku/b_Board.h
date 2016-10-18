@@ -129,27 +129,36 @@ void FillCount()
 
 
 
-
-//volatile byte blinkBits[][2] = {
-//  {0, 0},
-//  {1, 0},
-//  {2, 0},
-//  {2, 1},
-//  {2, 2},
-//  {1, 2},
-//  {0, 2},
-//  {0, 1}
-//};
+// Outer Perimeter
 volatile byte blinkBits[][2] = {
+  {0, 1},
+  {0, 0},
   {1, 0},
   {2, 0},
   {2, 1},
   {2, 2},
   {1, 2},
   {0, 2},
-  {0, 1},
-  {0, 0}
 };
+
+//volatile byte blinkBits[][2] = {
+//  {1, 0},
+//  {2, 0},
+//  {2, 1},
+//  {2, 2},
+//  {1, 2},
+//  {0, 2},
+//  {0, 1},
+//  {0, 0}
+//};
+
+//volatile byte blinkBits[][4] = {
+//  {1,0, 1,0},
+//  {0,0, 2,0},
+//  {0,1, 2,1},
+//  {0,2, 2,2},
+//  {1,2, 1,2}
+//};
 volatile byte animMax = sizeof(blinkBits) / (sizeof(byte) * 2);
 
 volatile int8_t gRow = 0;
@@ -194,6 +203,27 @@ void PleaseSelectCell_Wipe()
     timeToMove = 6;
   }
 }
+void PleaseSelectCell_Wipe2()
+{
+  if (--timeToMove == 0)
+  {
+    byte offset = antOffset;
+    byte colOffset = (selectedBox % 3) * 3;
+    byte rowOffset = (selectedBox / 3) * 3;
+    byte x1 = colOffset + blinkBits[offset][0];
+    byte y1 = rowOffset + blinkBits[offset][1];
+    byte x2 = colOffset + blinkBits[offset][2];
+    byte y2 = rowOffset + blinkBits[offset][3];
+    dots[x1][y1] = isOn;
+    dots[x2][y2] = isOn;
+    if (antOffset++ >= animMax) {
+      antOffset = 0;
+      isOn = 1 - isOn;
+    }
+
+    timeToMove = 6;
+  }
+}
 
 void PleaseSelectBox_Wipe()
 {
@@ -206,7 +236,7 @@ void PleaseSelectBox_Wipe()
         byte r = rowOffset * 3 + blinkBits[offset][1];
         dots[c][r] = isOn;
       }
-      
+
     if (antOffset++ > animMax) {
       antOffset = 0;
       isOn = 1 - isOn;
@@ -228,6 +258,42 @@ void PleaseSelectCell_Blink()
       byte r = rowOffset + blinkBits[i][1];
       dots[c][r] = isOn;
     }
+  }
+}
+
+void PleaseSelectCell_MarchingAnts()
+{
+  if (--timeToMove == 0)
+  {
+    for (byte i = 0; i < animMax; i++)
+    {
+      byte colOffset = (selectedBox % 3) * 3;
+      byte rowOffset = (selectedBox / 3) * 3;
+      byte c = colOffset + blinkBits[i][0];
+      byte r = rowOffset + blinkBits[i][1];
+      dots[c][r] = ! ((i - antOffset) % 3);
+    }
+    antOffset++;
+    if (antOffset > 2) antOffset = 0;
+    timeToMove = 12;
+  }
+}
+
+void PleaseSelectBox_MarchingAnts()
+{
+  if (--timeToMove == 0)
+  {
+    for (byte rowOffset = 0; rowOffset < 3; rowOffset++)
+      for (byte colOffset = 0; colOffset < 3; colOffset++)
+        for (byte i = 0; i < animMax; i++) {
+          byte c = colOffset * 3 + blinkBits[i][0];
+          byte r = rowOffset * 3 + blinkBits[i][1];
+          dots[c][r] = ! ((i - antOffset) % 3);;
+        }
+
+    antOffset++;
+    if (antOffset > 2) antOffset = 0;
+    timeToMove = 12;
   }
 }
 
