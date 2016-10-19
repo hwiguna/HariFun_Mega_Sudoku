@@ -1,20 +1,39 @@
 
 //== Numbers on Sudoku Board ==
+//volatile byte sudoku[][9] = {
+//  {1, 2, 3, 0, 0, 6, 7, 0, 9},
+//  {2, 3, 4, 5, 6, 7, 8, 9, 1},
+//  {3, 4, 5, 6, 7, 8, 9, 1, 2},
+//
+//  {4, 5, 6, 7, 8, 9, 1, 2, 3},
+//  {5, 6, 7, 8, 9, 1, 2, 3, 4},
+//  {6, 7, 8, 9, 1, 2, 3, 4, 5},
+//
+//  {7, 8, 9, 1, 2, 3, 4, 5, 6},
+//  {8, 9, 1, 2, 3, 4, 5, 6, 7},
+//  {9, 1, 2, 3, 4, 5, 6, 7, 8}
+//};
+
 volatile byte sudoku[][9] = {
-  {1, 2, 3, 0, 0, 6, 7, 0, 9},
-  {2, 3, 4, 5, 6, 7, 8, 9, 1},
-  {3, 4, 5, 6, 7, 8, 9, 1, 2},
+  {0, 0, 0, 1, 0, 0, 0, 3, 0},
+  {8, 0, 5, 0, 4, 0, 0, 6, 0},
+  {3, 2, 0, 0, 0, 0, 0, 0, 5},
 
-  {4, 5, 6, 7, 8, 9, 1, 2, 3},
-  {5, 6, 7, 8, 9, 1, 2, 3, 4},
-  {6, 7, 8, 9, 1, 2, 3, 4, 5},
+  {7, 0, 0, 0, 0, 6, 0, 5, 8},
+  {0, 0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 6, 0, 5, 1, 0, 0, 0, 0},
 
-  {7, 8, 9, 1, 2, 3, 4, 5, 6},
-  {8, 9, 1, 2, 3, 4, 5, 6, 7},
-  {9, 1, 2, 3, 4, 5, 6, 7, 8}
+  {2, 0, 0, 0, 0, 0, 0, 0, 7},
+  {0, 4, 9, 0, 5, 2, 0, 0, 1},
+  {0, 0, 8, 0, 0, 0, 0, 0, 4},
 };
 
+
 //== Dot states on Sudoku Board ==
+#define FLAG_IS_ORIGINAL 4
+#define FLAG_IS_WRONG 5
+#define FLAG_IS_SELECTED 6
+//#define FLAG_I_HAVE_NOT_THOUGHT_OF_A_USE_FOR_THIS_BIT 7
 volatile byte dots[9][9];
 
 //== Marching ant animation ==
@@ -261,6 +280,60 @@ void PleaseSelectCell_Blink()
   }
 }
 
+void PleaseSelectBox_Blink()
+{
+  if (--timeToMove == 0)
+  {
+    timeToMove = 15;
+    isOn = 1 - isOn;
+    for (byte i = 0; i < 9; i++) {
+      dots[i][3] = isOn;
+      dots[i][6] = isOn;
+      dots[3][i] = isOn;
+      dots[6][i] = isOn;
+    }
+  }
+}
+
+void PleaseSelectBox_CrossEdge()
+{
+  if (--timeToMove == 0)
+  {
+    timeToMove = 5;
+    byte i = antOffset++;
+    if (antOffset > 8) {
+      antOffset = 0;
+      isOn = 1 - isOn;
+    }
+    dots[i][3] = isOn;
+    dots[i][6] = isOn;
+    dots[3][i] = isOn;
+    dots[6][i] = isOn;
+  }
+}
+
+void PleaseSelectBox_Cross()
+{
+  if (--timeToMove == 0)
+  {
+    timeToMove = 5;
+    byte plus = 4 - antOffset;
+    byte minus = 4 + antOffset;
+    dots[minus][3] = isOn;
+    dots[plus][3] = isOn;
+    dots[minus][6] = isOn;
+    dots[plus][6] = isOn;
+    dots[3][minus] = isOn;
+    dots[3][plus] = isOn;
+    dots[6][minus] = isOn;
+    dots[6][plus] = isOn;
+    if (++antOffset > 4) {
+      antOffset = 0;
+      isOn = 1 - isOn;
+    }
+  }
+}
+
 void PleaseSelectCell_MarchingAnts()
 {
   if (--timeToMove == 0)
@@ -341,7 +414,8 @@ void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
   byte cellColOffset = (selectedCell % 3);
   byte cellRowOffset = (selectedCell / 3);
 
-  sudoku[boxColOffset + cellColOffset][boxRowOffset + cellRowOffset] = selectedDigit;
+  // Negative numbers in sudoku array indicates user entered digits, positive numbers digits in original puzzle
+  sudoku[boxRowOffset + cellRowOffset][boxColOffset + cellColOffset] = selectedDigit;
 }
 
 //
@@ -362,3 +436,20 @@ void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
 //}
 
 
+void ValidateSudoku()
+{
+  if (--timeToMove == 0)
+  {
+    timeToMove = 15;
+    isOn = 1 - isOn;
+
+    for (gRow = 0; gRow < 9; gRow++)
+    {
+      for (gCol = 0; gCol < 9; gCol++)
+      {
+        if ( (sudoku[gRow][gCol] < 0) && !isOn) {
+        }
+      }
+    }
+  }
+}

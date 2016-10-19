@@ -56,7 +56,7 @@ void Refresh(void)
       digitalWrite(SEG_LATCH_PIN, LOW); // Do not reflect bit changes as we're setting up 9 rows of digits for upcoming column
       for (gRow = 0; gRow < 9; gRow++)
       {
-        DisplayDigit( sudoku[gCol][gRow], dots[gCol][gRow] ); // Shift the digit bits, last row first
+        DisplayDigit( abs(sudoku[gRow][gCol]), dots[gCol][gRow] ); // Shift the digit bits, last row first
       }
       // We've shifted all 9 vertical digits
       digitalWrite(SEG_LATCH_PIN, HIGH); // Slam all 9 vertical digits to output pins
@@ -66,9 +66,10 @@ void Refresh(void)
   } else
   {
     if (gameMode == MODE_UNKNOWN) ClearSelection();
-    if (gameMode == MODE_PICK_BOX) PleaseSelectBox_MarchingAnts();
+    if (gameMode == MODE_PICK_BOX) PleaseSelectBox_Cross();
     if (gameMode == MODE_PICK_CELL) PleaseSelectCell_MarchingAnts();
     if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit();
+    if (gameMode == MODE_VALIDATE) ValidateSudoku();
   }
 }
 

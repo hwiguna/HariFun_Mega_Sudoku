@@ -11,6 +11,8 @@ void HandleKeypress(char keyPress)
       gameMode = MODE_PICK_BOX;
       break;
     case 11:
+      gameMode = MODE_VALIDATE;
+      break;
     case 12:
     case 13:
     case 14:
