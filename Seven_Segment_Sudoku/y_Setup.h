@@ -10,6 +10,9 @@ void setup() {
   pinMode(A5,OUTPUT);
   
   Serial.begin(9600);
+
+  SetupBoard();
+  
 //  Serial.print("animFrameCount=");
 //  Serial.println(animFrameCount);
   

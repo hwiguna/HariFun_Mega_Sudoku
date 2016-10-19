@@ -28,13 +28,14 @@ volatile byte sudoku[][9] = {
   {0, 0, 8, 0, 0, 0, 0, 0, 4},
 };
 
+//== high four bits of sudoku array ==
+#define IS_PUZZLE_BIT 4
+#define IS_VISIBLE_BIT 5
+#define IS_WRONG_BIT 6
+#define IS_DOT_ON_BIT 7 // <--- TODO: Use
 
 //== Dot states on Sudoku Board ==
-#define FLAG_IS_ORIGINAL 4
-#define FLAG_IS_WRONG 5
-#define FLAG_IS_SELECTED 6
-//#define FLAG_I_HAVE_NOT_THOUGHT_OF_A_USE_FOR_THIS_BIT 7
-volatile byte dots[9][9];
+volatile byte dots[9][9]; // TODO: Kill this, use the above bits within sudoku array instead.
 
 //== Marching ant animation ==
 volatile byte antOffset = 0; // 0,1,2 then it cycles back to 0
@@ -42,6 +43,15 @@ volatile unsigned long timeToMove = 10;
 volatile byte isOn;
 
 //== Functions ==
+
+void SetupBoard()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++) {
+      if (sudoku[r][c] != 0) bitSet(sudoku[r][c], IS_PUZZLE_BIT);
+      bitSet(sudoku[r][c], IS_VISIBLE_BIT);
+    }
+}
 
 void TopLeftDots()
 {
@@ -352,7 +362,7 @@ void PleaseSelectCell_MarchingAnts()
   }
 }
 
-void PleaseSelectBox_MarchingAnts()
+void PleaseSelectBox_9_Separate_MarchingAnts()
 {
   if (--timeToMove == 0)
   {
@@ -364,6 +374,24 @@ void PleaseSelectBox_MarchingAnts()
           dots[c][r] = ! ((i - antOffset) % 3);;
         }
 
+    antOffset++;
+    if (antOffset > 2) antOffset = 0;
+    timeToMove = 12;
+  }
+}
+
+void PleaseSelectBox_MarchingAnts()
+{
+  if (--timeToMove == 0)
+  {
+    for (byte i = 0; i < 9; i++)
+    {
+      byte isOn = ! ((i - antOffset) % 3);
+      dots[i][0] = isOn;
+      dots[8][i] = isOn;
+      dots[8 - i][8] = isOn;
+      dots[0][8 - i] = isOn;
+    }
     antOffset++;
     if (antOffset > 2) antOffset = 0;
     timeToMove = 12;
@@ -406,16 +434,59 @@ void PleaseSelectDigit()
   dots[boxColOffset + cellColOffset][boxRowOffset + cellRowOffset] = 1;
 }
 
-void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
+void PleaseSelectDigit_Blink()
+{
+  if (--timeToMove == 0)
+  {
+    byte boxColOffset = (selectedBox % 3) * 3;
+    byte boxRowOffset = (selectedBox / 3) * 3;
+
+    byte cellColOffset = (selectedCell % 3);
+    byte cellRowOffset = (selectedCell / 3);
+
+    byte isOn = (antOffset > 0);
+    dots[boxColOffset + cellColOffset][boxRowOffset + cellRowOffset] = isOn;
+    antOffset = isOn ? 0 : 1;
+    timeToMove = 12;
+  }
+}
+
+byte GetSelectedRow(byte selectedBox, byte selectedCell)
+{
+  byte boxRowOffset = (selectedBox / 3) * 3;
+  byte cellRowOffset = (selectedCell / 3);
+  return boxRowOffset + cellRowOffset;
+}
+
+byte GetSelectedCol(byte selectedBox, byte selectedCell)
 {
   byte boxColOffset = (selectedBox % 3) * 3;
-  byte boxRowOffset = (selectedBox / 3) * 3;
-
   byte cellColOffset = (selectedCell % 3);
-  byte cellRowOffset = (selectedCell / 3);
+  return boxColOffset + cellColOffset;
+}
 
-  // Negative numbers in sudoku array indicates user entered digits, positive numbers digits in original puzzle
-  sudoku[boxRowOffset + cellRowOffset][boxColOffset + cellColOffset] = selectedDigit;
+byte GetSelectedCell(byte selectedBox, byte selectedCell)
+{
+  byte row = GetSelectedRow(selectedBox, selectedCell);
+  byte col = GetSelectedCol(selectedBox, selectedCell);
+  byte cellValue = sudoku[row][col];
+  return cellValue;
+}
+
+void SetSelectedCell(byte selectedBox, byte selectedCell, byte cellValue)
+{
+  byte row = GetSelectedRow(selectedBox, selectedCell);
+  byte col = GetSelectedCol(selectedBox, selectedCell);
+  sudoku[row][col] = cellValue;
+}
+
+void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
+{
+  byte cellValue = GetSelectedCell(selectedBox, selectedCell);
+  if (!bitRead(cellValue, IS_PUZZLE_BIT)) {
+    byte newCellValue = (cellValue & B11110000) | selectedDigit;
+    SetSelectedCell(selectedBox, selectedCell, newCellValue);
+  }
 }
 
 //

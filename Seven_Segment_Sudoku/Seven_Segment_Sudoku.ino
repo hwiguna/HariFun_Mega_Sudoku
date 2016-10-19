@@ -67,4 +67,6 @@ const byte SEG_SER_PIN = 13;
 // v0.05 - Remove Column shift register.
 //           Code now works with PCB version. digitBits is now inverted 180 degrees so the decimal point is at top.
 
+// v0.06 - Use bits in sudoku array instead of separate bits array. I'm doing this so we only have to manage one array instead of two. 
+//         Also saves variable space.
 
