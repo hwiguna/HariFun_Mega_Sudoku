@@ -11,6 +11,8 @@ void HandleKeypress(char keyPress)
       gameMode = MODE_PICK_BOX;
       break;
     case 11:
+      gameMode = MODE_VALIDATE;
+      break;
     case 12:
     case 13:
     case 14:
@@ -21,19 +23,26 @@ void HandleKeypress(char keyPress)
     default:
       switch (gameMode) {
         case MODE_PICK_BOX:
+        {
           ClearSelection();
           selectedBox = keyPress - 1;
           gameMode = MODE_PICK_CELL;
           break;
+        }
         case MODE_PICK_CELL:
+        {
           ClearSelection();
           selectedCell = keyPress - 1;
-          gameMode = MODE_PICK_DIGIT;
+          byte cellValue = GetSelectedCell(selectedBox, selectedCell);
+          if (!bitRead(cellValue,IS_PUZZLE_BIT)) gameMode = MODE_PICK_DIGIT;
           break;
+        }
         case MODE_PICK_DIGIT:
+        {
           selectedDigit = keyPress;
           SetDigit(selectedBox, selectedCell, selectedDigit);
           break;
+        }
       }
       break;
   }

@@ -11,8 +11,9 @@ const byte SEG_SER_PIN = 13;
 
 #include "a_Game.h"
 #include "b_Board.h"
-#include "c_Keypad.h"
-#include "d_Screen.h"
+#include "c_Animation.h"
+#include "d_Keypad.h"
+#include "e_Screen.h"
 #include "y_Setup.h"
 #include "z_Loop.h"
 
@@ -20,7 +21,7 @@ const byte SEG_SER_PIN = 13;
 // [x] keypad handling
 // [ ] play game
 //  [x] Select Mode
-//  [ ] marching ants
+//  [x] marching ants
 //  [x] Select Ternary
 //  [x] Select Cell
 //  [x] Set Digit in Cell
@@ -66,5 +67,8 @@ const byte SEG_SER_PIN = 13;
 
 // v0.05 - Remove Column shift register.
 //           Code now works with PCB version. digitBits is now inverted 180 degrees so the decimal point is at top.
+
+// v0.06 - Use bits in sudoku array instead of separate bits array. I'm doing this so we only have to manage one array instead of two. 
+//         Also saves variable space.
 
 
