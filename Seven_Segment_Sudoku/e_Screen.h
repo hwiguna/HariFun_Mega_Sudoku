@@ -32,7 +32,7 @@ void FastSetColumn(byte col)
 
 void DisplayCell(byte cellValue)
 {
-  byte cellDigit = cellValue & B00001111; // Low 4 bits are the actual digit of that cell
+  byte cellDigit = GetDigit(cellValue);
   byte showDot = bitRead(cellValue, IS_DOT_ON_BIT);
   byte segByte =  bitRead(cellValue,IS_VISIBLE_BIT) ? digitBits[cellDigit] | showDot : digitBits[0];
   shiftOut(SEG_SER_PIN, SEG_CLK_PIN, LSBFIRST, ~segByte);
@@ -62,7 +62,7 @@ void Refresh(void)
     if (gameMode == MODE_PICK_BOX) PleaseSelectBox_MarchingAnts();
     if (gameMode == MODE_PICK_CELL) PleaseSelectCell_MarchingAnts();
     if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit_Blink();
-    if (gameMode == MODE_VALIDATE) ValidateSudoku();
+    //if (gameMode == MODE_VALIDATE) ValidateSudoku();
   }
 }
 
