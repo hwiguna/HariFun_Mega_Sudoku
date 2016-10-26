@@ -106,6 +106,13 @@ void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
   }
 }
 
+void RemoveWrong()
+{
+  byte r = GetSelectedRow(selectedBox, selectedCell);
+  byte c = GetSelectedCol(selectedBox, selectedCell);
+  if (bitRead(sudoku[r][c], IS_WRONG_BIT)) sudoku[r][c] = 0;
+}
+
 void ClearIsWrongs()
 {
   for (byte r = 0; r < 9; r++)
@@ -163,3 +170,53 @@ void ValidateCell(byte row, byte col)
 
   if (hasWrong) MarkAsWrong(row, col);
 }
+
+void MarkRow(byte row, byte digit)
+{
+  for (byte c = 0; c < 9; c++)
+    if (GetDigit(sudoku[row][c]) == 0) sudoku[row][c] = 10;
+}
+
+void MarkCol(byte col, byte digit)
+{
+  for (byte r = 0; r < 9; r++)
+    if (GetDigit(sudoku[r][col]) == 0) sudoku[r][col] = 10;
+}
+
+
+void MarkBox(byte r0, byte c0, byte digit)
+{
+  for (byte r1 = 0; r1 < 3; r1++)
+    for (byte c1 = 0; c1 < 3; c1++)
+    {
+      byte r = r0 + r1;
+      byte c = c0 + c1;
+      if (GetDigit(sudoku[r][c]) == 0) sudoku[r][c] = 10;
+    }
+}
+
+void ClearAssists()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+      if (GetDigit(sudoku[r][c]) == 10) sudoku[r][c] = 0;
+}
+
+void Assist(byte selectedDigit)
+{
+  ClearAssists();
+
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+    {
+      byte cellDigit = GetDigit(sudoku[r][c]);
+      if (cellDigit == selectedDigit) {
+        byte r0 = (r / 3) * 3;
+        byte c0 = (c / 3) * 3;
+        MarkRow(r, selectedDigit);
+        MarkCol(c, selectedDigit);
+        MarkBox(r0, c0, selectedDigit);
+      }
+    }
+}
+

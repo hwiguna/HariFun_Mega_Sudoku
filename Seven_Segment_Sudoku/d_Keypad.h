@@ -14,15 +14,19 @@ void HandleKeypress(char keyPress)
 {
   switch (keyPress) {
     case KEY_A:
+      ClearAssists();
       ClearSelection();
       gameMode = MODE_PICK_BOX;
       break;
     case KEY_B:
-      gameMode = MODE_VALIDATE;
+      ClearSelection();
+      gameMode = MODE_ASSIST;
       break;
     case KEY_C:
     case KEY_D:
+      RemoveWrong();
       ClearIsWrongs();
+      ClearAssists();
       gameMode = MODE_UNKNOWN;
       break;
     case KEY_STAR:
@@ -33,29 +37,35 @@ void HandleKeypress(char keyPress)
     default:
       switch (gameMode) {
         case MODE_PICK_BOX:
-        {
-          ClearSelection();
-          selectedBox = keyPress - 1;
-          gameMode = MODE_PICK_CELL;
-          break;
-        }
+          {
+            ClearSelection();
+            selectedBox = keyPress - 1;
+            gameMode = MODE_PICK_CELL;
+            break;
+          }
         case MODE_PICK_CELL:
-        {
-          ClearSelection();
-          selectedCell = keyPress - 1;
-          byte cellValue = GetSelectedCell(selectedBox, selectedCell);
-          if (!bitRead(cellValue,IS_PUZZLE_BIT)) gameMode = MODE_PICK_DIGIT;
-          break;
-        }
+          {
+            ClearSelection();
+            selectedCell = keyPress - 1;
+            byte cellValue = GetSelectedCell(selectedBox, selectedCell);
+            if (!bitRead(cellValue, IS_PUZZLE_BIT)) gameMode = MODE_PICK_DIGIT;
+            break;
+          }
         case MODE_PICK_DIGIT:
-        {
-          selectedDigit = keyPress;
-          SetDigit(selectedBox, selectedCell, selectedDigit);
-          byte selectedRow = GetSelectedRow(selectedBox, selectedCell);
-          byte selectedCol = GetSelectedCol(selectedBox, selectedCell);
-          ValidateCell(selectedRow, selectedCol);
-          break;
-        }
+          {
+            selectedDigit = keyPress;
+            SetDigit(selectedBox, selectedCell, selectedDigit);
+            byte selectedRow = GetSelectedRow(selectedBox, selectedCell);
+            byte selectedCol = GetSelectedCol(selectedBox, selectedCell);
+            ValidateCell(selectedRow, selectedCol);
+            break;
+          }
+        case MODE_ASSIST:
+          {
+            if (keyPress <= 9)
+              Assist(keyPress);
+            break;
+          }
       }
       break;
   }
