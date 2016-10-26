@@ -121,9 +121,12 @@ void MarkAsWrong(byte row, byte col)
 
 void ValidateCell(byte row, byte col)
 {
-  //-- Mark duplicate digits on each row --
+  ClearIsWrongs();
+
   bool hasWrong = false;
   byte guessDigit = GetDigit(sudoku[row][col]);
+
+  //-- Mark duplicate digits on each row --
   for (byte c = 0; c < 9; c++) // Loop through all the columns of that row...
   {
     // Is it a duplicate of the cell we're validating?
@@ -134,10 +137,29 @@ void ValidateCell(byte row, byte col)
   }
 
   //-- Mark duplicate digits on each column --
-  // TODO
-  
+  for (byte r = 0; r < 9; r++) // Loop through all the rows of that column...
+  {
+    // Is it a duplicate of the cell we're validating?
+    if ( r != row && GetDigit(sudoku[r][col]) == guessDigit) {
+      MarkAsWrong(r, col);
+      hasWrong = true;
+    }
+  }
+
   //-- Mark duplicate digits on each box --
-  // TODO
- 
+  byte r0 = (row / 3) * 3;
+  byte c0 = (col / 3) * 3;
+  for (byte r1 = 0; r1 < 3; r1++)
+    for (byte c1 = 0; c1 < 3; c1++)
+    {
+      byte r = r0 + r1;
+      byte c = c0 + c1;
+      // Is it a duplicate of the cell we're validating?
+      if ( r != row && c != col && GetDigit(sudoku[r][c]) == guessDigit) {
+        MarkAsWrong(r, c);
+        hasWrong = true;
+      }
+    }
+
   if (hasWrong) MarkAsWrong(row, col);
 }

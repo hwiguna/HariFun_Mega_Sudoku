@@ -63,6 +63,7 @@ void Refresh(void)
     if (gameMode == MODE_PICK_CELL) PleaseSelectCell_MarchingAnts();
     if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit_Blink();
     //if (gameMode == MODE_VALIDATE) ValidateSudoku();
+    AnimateBlinks();
   }
 }
 
