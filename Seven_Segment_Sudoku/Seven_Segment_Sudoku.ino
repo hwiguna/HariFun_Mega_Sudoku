@@ -17,7 +17,6 @@ const byte SEG_SER_PIN = 13;
 #include "y_Setup.h"
 #include "z_Loop.h"
 
-
 // [x] keypad handling
 // [ ] play game
 //  [x] Select Mode

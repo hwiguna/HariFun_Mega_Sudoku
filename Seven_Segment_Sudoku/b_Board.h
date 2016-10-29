@@ -51,6 +51,11 @@ void SetupBoard()
     }
 }
 
+byte GetDigit(byte cellValue)
+{
+  return cellValue & B00001111; // Low 4 bits are the actual digit of that cell
+}
+
 void SetDot(byte row, byte col, byte state)
 {
   if (state) bitSet(sudoku[row][col], IS_DOT_ON_BIT); else bitClear(sudoku[row][col], IS_DOT_ON_BIT);
@@ -101,15 +106,117 @@ void SetDigit(byte selectedBox, byte selectedCell, byte selectedDigit)
   }
 }
 
-void ValidateSudoku()
+void RemoveWrong()
 {
-  byte isBad = false; // Innocent until proven guilty
+  byte r = GetSelectedRow(selectedBox, selectedCell);
+  byte c = GetSelectedCol(selectedBox, selectedCell);
+  if (bitRead(sudoku[r][c], IS_WRONG_BIT)) sudoku[r][c] = 0;
+}
 
-  //TODO: Implement Sudoku rules here!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  for (gRow = 0; gRow < 9; gRow++)
+void ClearIsWrongs()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++) {
+      bitClear(sudoku[r][c], IS_WRONG_BIT);
+    }
+}
+
+void MarkAsWrong(byte row, byte col)
+{
+  bitSet(sudoku[row][col], IS_WRONG_BIT);
+}
+
+void ValidateCell(byte row, byte col)
+{
+  ClearIsWrongs();
+
+  bool hasWrong = false;
+  byte guessDigit = GetDigit(sudoku[row][col]);
+
+  //-- Mark duplicate digits on each row --
+  for (byte c = 0; c < 9; c++) // Loop through all the columns of that row...
   {
-    for (gCol = 0; gCol < 9; gCol++)
-    {
+    // Is it a duplicate of the cell we're validating?
+    if ( c != col && GetDigit(sudoku[row][c]) == guessDigit) {
+      MarkAsWrong(row, c);
+      hasWrong = true;
     }
   }
+
+  //-- Mark duplicate digits on each column --
+  for (byte r = 0; r < 9; r++) // Loop through all the rows of that column...
+  {
+    // Is it a duplicate of the cell we're validating?
+    if ( r != row && GetDigit(sudoku[r][col]) == guessDigit) {
+      MarkAsWrong(r, col);
+      hasWrong = true;
+    }
+  }
+
+  //-- Mark duplicate digits on each box --
+  byte r0 = (row / 3) * 3;
+  byte c0 = (col / 3) * 3;
+  for (byte r1 = 0; r1 < 3; r1++)
+    for (byte c1 = 0; c1 < 3; c1++)
+    {
+      byte r = r0 + r1;
+      byte c = c0 + c1;
+      // Is it a duplicate of the cell we're validating?
+      if ( r != row && c != col && GetDigit(sudoku[r][c]) == guessDigit) {
+        MarkAsWrong(r, c);
+        hasWrong = true;
+      }
+    }
+
+  if (hasWrong) MarkAsWrong(row, col);
 }
+
+void MarkRow(byte row, byte digit)
+{
+  for (byte c = 0; c < 9; c++)
+    if (GetDigit(sudoku[row][c]) == 0) sudoku[row][c] = 10;
+}
+
+void MarkCol(byte col, byte digit)
+{
+  for (byte r = 0; r < 9; r++)
+    if (GetDigit(sudoku[r][col]) == 0) sudoku[r][col] = 10;
+}
+
+
+void MarkBox(byte r0, byte c0, byte digit)
+{
+  for (byte r1 = 0; r1 < 3; r1++)
+    for (byte c1 = 0; c1 < 3; c1++)
+    {
+      byte r = r0 + r1;
+      byte c = c0 + c1;
+      if (GetDigit(sudoku[r][c]) == 0) sudoku[r][c] = 10;
+    }
+}
+
+void ClearAssists()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+      if (GetDigit(sudoku[r][c]) == 10) sudoku[r][c] = 0;
+}
+
+void Assist(byte selectedDigit)
+{
+  ClearAssists();
+
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+    {
+      byte cellDigit = GetDigit(sudoku[r][c]);
+      if (cellDigit == selectedDigit) {
+        byte r0 = (r / 3) * 3;
+        byte c0 = (c / 3) * 3;
+        MarkRow(r, selectedDigit);
+        MarkCol(c, selectedDigit);
+        MarkBox(r0, c0, selectedDigit);
+      }
+    }
+}
+

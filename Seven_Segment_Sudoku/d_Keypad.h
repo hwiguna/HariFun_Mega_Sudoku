@@ -2,47 +2,70 @@
 int thresholds[16] = {0, 77, 144, 202, 244, 290, 331, 368, 394, 424, 452, 477, 496, 518, 538, 556};
 char keypad[16] = {1, 2, 3, 10, 4, 5, 6, 11, 7, 8, 9, 12, 14, 0, 15, 13}; // A=10,B=11,C=12,D=13,*=14,#=15
 
+#define KEY_A   10
+#define KEY_B   11
+#define KEY_C   12
+#define KEY_D   13
+#define KEY_STAR  14
+#define KEY_HASH  15
+
 //== Functions ==
 void HandleKeypress(char keyPress)
 {
   switch (keyPress) {
-    case 10:
+    case KEY_A:
+      ClearAssists();
       ClearSelection();
       gameMode = MODE_PICK_BOX;
       break;
-    case 11:
-      gameMode = MODE_VALIDATE;
+    case KEY_B:
+      ClearSelection();
+      gameMode = MODE_ASSIST;
       break;
-    case 12:
-    case 13:
-    case 14:
-    case 15:
+    case KEY_C:
+    case KEY_D:
+      RemoveWrong();
+      ClearIsWrongs();
+      ClearAssists();
+      gameMode = MODE_UNKNOWN;
+      break;
+    case KEY_STAR:
+    case KEY_HASH:
       ClearSelection();
       gameMode = MODE_UNKNOWN;
       break;
     default:
       switch (gameMode) {
         case MODE_PICK_BOX:
-        {
-          ClearSelection();
-          selectedBox = keyPress - 1;
-          gameMode = MODE_PICK_CELL;
-          break;
-        }
+          {
+            ClearSelection();
+            selectedBox = keyPress - 1;
+            gameMode = MODE_PICK_CELL;
+            break;
+          }
         case MODE_PICK_CELL:
-        {
-          ClearSelection();
-          selectedCell = keyPress - 1;
-          byte cellValue = GetSelectedCell(selectedBox, selectedCell);
-          if (!bitRead(cellValue,IS_PUZZLE_BIT)) gameMode = MODE_PICK_DIGIT;
-          break;
-        }
+          {
+            ClearSelection();
+            selectedCell = keyPress - 1;
+            byte cellValue = GetSelectedCell(selectedBox, selectedCell);
+            if (!bitRead(cellValue, IS_PUZZLE_BIT)) gameMode = MODE_PICK_DIGIT;
+            break;
+          }
         case MODE_PICK_DIGIT:
-        {
-          selectedDigit = keyPress;
-          SetDigit(selectedBox, selectedCell, selectedDigit);
-          break;
-        }
+          {
+            selectedDigit = keyPress;
+            SetDigit(selectedBox, selectedCell, selectedDigit);
+            byte selectedRow = GetSelectedRow(selectedBox, selectedCell);
+            byte selectedCol = GetSelectedCol(selectedBox, selectedCell);
+            ValidateCell(selectedRow, selectedCol);
+            break;
+          }
+        case MODE_ASSIST:
+          {
+            if (keyPress <= 9)
+              Assist(keyPress);
+            break;
+          }
       }
       break;
   }
@@ -69,5 +92,4 @@ void WaitForKeypress()
   }
   //delayMicroseconds(10);
 }
-
 

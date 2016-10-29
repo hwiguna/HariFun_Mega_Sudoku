@@ -3,6 +3,10 @@ volatile byte antOffset = 0; // 0,1,2 then it cycles back to 0
 volatile unsigned long animSpeed = 12; // Lower = faster
 volatile unsigned long animCountdown = animSpeed;
 
+volatile byte blinkSpeed = 12; // Lower = faster
+volatile unsigned long blinkCountDown = blinkSpeed;
+volatile bool blinkIsOn;
+
 // Outer Perimeter
 volatile byte blinkBits[][2] = {
   {0, 1},
@@ -72,6 +76,25 @@ void PleaseSelectDigit_Blink()
 
     antOffset = isOn ? 0 : 1;
     animCountdown = animSpeed;
+  }
+}
+
+void AnimateBlinks()
+{
+  if (--blinkCountDown == 0)
+  {
+    for (byte r = 0; r < 9; r++)
+      for (byte c = 0; c < 9; c++)
+        if (!bitRead(sudoku[r][c],IS_WRONG_BIT))
+          bitSet(sudoku[r][c], IS_VISIBLE_BIT);
+        else
+          if (blinkIsOn) 
+          bitSet(sudoku[r][c], IS_VISIBLE_BIT); 
+          else 
+          bitClear(sudoku[r][c], IS_VISIBLE_BIT);
+
+    blinkIsOn = !blinkIsOn;
+    blinkCountDown = blinkSpeed;
   }
 }
 
