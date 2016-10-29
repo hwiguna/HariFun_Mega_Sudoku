@@ -10,7 +10,8 @@ void setup() {
   pinMode(A5,OUTPUT);
   
   Serial.begin(9600);
-
+  
+  randomSeed(analogRead(5));
   SetupBoard();
   SetupTimer();
 }

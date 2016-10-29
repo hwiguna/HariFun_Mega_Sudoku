@@ -13,23 +13,29 @@ char keypad[16] = {1, 2, 3, 10, 4, 5, 6, 11, 7, 8, 9, 12, 14, 0, 15, 13}; // A=1
 void HandleKeypress(char keyPress)
 {
   switch (keyPress) {
-    case KEY_A:
+    case KEY_A: // Select
       ClearAssists();
       ClearSelection();
       gameMode = MODE_PICK_BOX;
       break;
-    case KEY_B:
+    case KEY_B: // Cheat
       ClearSelection();
       gameMode = MODE_ASSIST;
       break;
     case KEY_C:
-    case KEY_D:
+    case KEY_D: // Clear
       RemoveWrong();
       ClearIsWrongs();
       ClearAssists();
       gameMode = MODE_UNKNOWN;
       break;
     case KEY_STAR:
+      RemoveWrong();
+      ClearIsWrongs();
+      ClearAssists();
+      SetupBoard();
+      gameMode = MODE_UNKNOWN;
+      break;
     case KEY_HASH:
       ClearSelection();
       gameMode = MODE_UNKNOWN;
@@ -74,14 +80,14 @@ void HandleKeypress(char keyPress)
 void WaitForKeypress()
 {
   int value = analogRead(A0);
-  Serial.println(value);
+  //Serial.println(value);
   for (int i = 0; i < 16; i++)
   {
     // Is A0 close enough to one of the keypad values?
     if ( abs(value - thresholds[i]) < 4)
     {
       // Yes, translate the index of that value to the actual name of the key
-      Serial.println(keypad[i]);
+      //Serial.println(keypad[i]);
       //FillAll(keypad[i]);
       HandleKeypress(keypad[i]);
       // Wait until they release the button
