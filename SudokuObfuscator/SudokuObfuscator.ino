@@ -1,36 +1,35 @@
 #include <avr/pgmspace.h>
 
-const byte sudokus[][9] PROGMEM = {
-  {0, 2, 2, 2, 4, 5, 6, 7, 8},
-  {8, 0, 5, 0, 4, 0, 0, 6, 0},
-  {3, 2, 0, 0, 0, 0, 0, 0, 5},
-  {7, 0, 0, 0, 0, 6, 0, 5, 8},
-  {0, 0, 0, 0, 4, 0, 0, 0, 0},
-  {0, 6, 0, 5, 1, 0, 0, 0, 0},
-  {2, 0, 0, 0, 0, 0, 0, 0, 7},
-  {0, 4, 9, 0, 5, 2, 0, 0, 1},
-  {0, 0, 8, 0, 0, 0, 0, 0, 4},
+const char sudokus[][81] PROGMEM = {
+  "...1...3."
+  "8.5.4..6."
+  "32......5"
+  "7....6.58"
+  "........."
+  ".6.51...."
+  "2.......7"
+  ".49.52..1"
+  "..8.....4",
 
-  {1, 1, 2, 2, 4, 5, 6, 7, 8},
-  {8, 0, 5, 0, 4, 0, 0, 6, 0},
-  {3, 2, 0, 0, 0, 0, 0, 0, 5},
-  {7, 0, 0, 0, 0, 6, 0, 5, 8},
-  {0, 0, 0, 0, 4, 0, 0, 0, 0},
-  {0, 6, 0, 5, 1, 0, 0, 0, 0},
-  {2, 0, 0, 0, 0, 0, 0, 0, 7},
-  {0, 4, 9, 0, 5, 2, 0, 0, 1},
-  {0, 0, 8, 0, 0, 0, 0, 0, 4},
+  "......8.." // Very Easy 0190 Sep 10,201
+  ".987.43.."
+  ".6.82.719"
+  "....769.."
+  "5...3.64."
+  ".369..15."
+  ".843..2.."
+  "3..692.81"
+  ".........",
 
-  {0, 1, 2, 3, 4, 5, 6, 7, 8},
-  {8, 0, 5, 0, 4, 0, 0, 6, 0},
-  {3, 2, 0, 0, 0, 0, 0, 0, 5},
-  {7, 0, 0, 0, 0, 6, 0, 5, 8},
-  {0, 0, 0, 0, 4, 0, 0, 0, 0},
-  {0, 6, 0, 5, 1, 0, 0, 0, 0},
-  {2, 0, 0, 0, 0, 0, 0, 0, 7},
-  {0, 4, 9, 0, 5, 2, 0, 0, 1},
-  {0, 0, 8, 0, 0, 0, 0, 0, 4},
-
+  "..3.2.7.." // Very Easy 0909 Sep 9
+  "6...35.91"
+  ".17..98.."
+  ".7..5..8."
+  "..4.6.9.5"
+  ".....71.2"
+  "7.12.6.48"
+  "..537...."
+  "89251....",
 };
 
 volatile byte sudoku[9][9];
@@ -105,20 +104,28 @@ void SudokuGenerate()
   // Randomly pick a starting puzzle
   int puzzleMax = sizeof(sudokus) / 81;
   int randomPuzzle = random(0, puzzleMax);
-  Serial.println(randomPuzzle);
-  memcpy_P (sudoku, &sudokus[randomPuzzle * 9][0], sizeof(byte) * 81);
+  char puzzle[82];
+  memcpy_P (puzzle, sudokus[randomPuzzle], 81);
+  //  puzzle[81] = 0;
+  //  Serial.println(puzzle);
+  for (byte i = 0; i < 81; i++)
+  {
+    byte r = i / 9;
+    byte c = i % 9;
+    sudoku[r][c] = puzzle[i] == '.' ? 0 : puzzle[i] - '0';
+  }
 
-  SudokuJumble();
+  //SudokuJumble();
 
   // Randomly flip horizontally, vertically, rotate
-  if (random(0, 1)) SudokuHFlip();
-  if (random(0, 1)) SudokuVFlip();
-  for (byte r = 0; r < random(4); r++)
-    SudokuRotateClockwise();
+  //  if (random(0, 1)) SudokuHFlip();
+  //  if (random(0, 1)) SudokuVFlip();
+  //  for (byte r = 0; r < random(4); r++)
+  //    SudokuRotateClockwise();
 }
 
 
-void setup() {  
+void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
 
