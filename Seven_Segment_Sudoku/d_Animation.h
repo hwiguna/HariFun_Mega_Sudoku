@@ -7,6 +7,8 @@ volatile byte blinkSpeed = 12; // Lower = faster
 volatile unsigned long blinkCountDown = blinkSpeed;
 volatile bool blinkIsOn;
 
+volatile byte dimSpeed = 48; // Lower = faster
+
 // Outer Perimeter
 volatile byte blinkBits[][2] = {
   {0, 1},
@@ -84,7 +86,7 @@ void AnimateBlinks()
   if (--blinkCountDown == 0)
   {
     for (byte r = 0; r < 9; r++)
-      for (byte c = 0; c < 9; c++)
+      for (byte c = 0; c < 9; c++) {
         if (!bitRead(sudoku[r][c],IS_WRONG_BIT))
           bitSet(sudoku[r][c], IS_VISIBLE_BIT);
         else
@@ -92,9 +94,50 @@ void AnimateBlinks()
           bitSet(sudoku[r][c], IS_VISIBLE_BIT); 
           else 
           bitClear(sudoku[r][c], IS_VISIBLE_BIT);
-
+      }
+      
     blinkIsOn = !blinkIsOn;
     blinkCountDown = blinkSpeed;
+  }
+}
+
+void AssistDimming()
+{
+  if (--blinkCountDown == 0)
+  {
+    for (byte r = 0; r < 9; r++)
+      for (byte c = 0; c < 9; c++) {
+        byte cellDigit = GetDigit(sudoku[r][c]);
+        if (cellDigit == selectedDigit || cellDigit == 10)
+        if (blinkIsOn) 
+          bitSet(sudoku[r][c], IS_VISIBLE_BIT); 
+          else 
+          bitClear(sudoku[r][c], IS_VISIBLE_BIT);
+        else
+          bitSet(sudoku[r][c], IS_VISIBLE_BIT);
+      }
+    blinkIsOn = !blinkIsOn;
+    blinkCountDown = blinkIsOn ? 12 : dimSpeed;
+  }
+}
+
+void AssistBlink()
+{
+  if (--blinkCountDown == 0)
+  {
+    for (byte r = 0; r < 9; r++)
+      for (byte c = 0; c < 9; c++) {
+        byte cellDigit = GetDigit(sudoku[r][c]);
+        if (cellDigit == selectedDigit || cellDigit == 10)
+        if (blinkIsOn) 
+          bitSet(sudoku[r][c], IS_VISIBLE_BIT); 
+          else 
+          bitClear(sudoku[r][c], IS_VISIBLE_BIT);
+        else
+          bitSet(sudoku[r][c], IS_VISIBLE_BIT);
+      }
+    blinkIsOn = !blinkIsOn;
+    blinkCountDown = blinkIsOn ? 12 : dimSpeed;
   }
 }
 

@@ -172,8 +172,9 @@ void MarkBox(byte r0, byte c0, byte digit)
 void ClearAssists()
 {
   for (byte r = 0; r < 9; r++)
-    for (byte c = 0; c < 9; c++)
-      if (GetDigit(sudoku[r][c]) == 10) sudoku[r][c] = 0;
+    for (byte c = 0; c < 9; c++) {
+      if (GetDigit(sudoku[r][c]) == 10 || bitRead(sudoku[r][c], IS_WRONG_BIT)) sudoku[r][c] = 0;
+    }
 }
 
 void Assist(byte selectedDigit)
@@ -190,6 +191,17 @@ void Assist(byte selectedDigit)
         MarkRow(r, selectedDigit);
         MarkCol(c, selectedDigit);
         MarkBox(r0, c0, selectedDigit);
+      }
+    }
+
+  //-- Mark what's left as "wrong", so we could undo them later --
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+    {
+      byte cellDigit = GetDigit(sudoku[r][c]);
+      if (cellDigit == 0) {
+        sudoku[r][c] = selectedDigit;
+        MarkAsWrong(r,c);
       }
     }
 }

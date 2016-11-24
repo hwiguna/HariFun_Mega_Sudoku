@@ -5,7 +5,7 @@
 #define MODE_PICK_DIGIT 3
 #define MODE_ASSIST 0
 
-volatile byte gameMode = MODE_UNKNOWN;
+volatile byte gameMode = MODE_ASSIST;
 volatile byte selectedBox = 0;
 volatile byte selectedCell = 0;
 volatile byte selectedDigit = 0;

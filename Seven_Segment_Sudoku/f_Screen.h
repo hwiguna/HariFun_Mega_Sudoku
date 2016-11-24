@@ -59,12 +59,13 @@ void Refresh(void)
     digitalWrite(A5, LOW); // Debug
   } else
   {
-    if (gameMode == MODE_UNKNOWN) ClearSelection();
+    //if (gameMode == MODE_UNKNOWN) ClearSelection();
     if (gameMode == MODE_PICK_BOX) PleaseSelectBox_MarchingAnts();
     if (gameMode == MODE_PICK_CELL) PleaseSelectCell_MarchingAnts();
     if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit_Blink();
     //if (gameMode == MODE_VALIDATE) ValidateSudoku();
-    AnimateBlinks();
+    //if (gameMode == MODE_ASSIST) AssistDimming(); else 
+    AnimateBlinks(); 
   }
 }
 

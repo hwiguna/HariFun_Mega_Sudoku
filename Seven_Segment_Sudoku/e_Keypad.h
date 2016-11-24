@@ -21,15 +21,17 @@ void HandleKeypress(char keyPress)
     case KEY_B: // ???
     case KEY_C: // ???
     case KEY_D: // Clear
-      RemoveWrong();
-      ClearIsWrongs();
       ClearAssists();
+      ClearSelection();
+      //RemoveWrong();
+      //ClearIsWrongs();
       gameMode = MODE_ASSIST;
       break;
     case KEY_STAR: // New Game
-      RemoveWrong();
-      ClearIsWrongs();
+      //RemoveWrong();
+      //ClearIsWrongs();
       ClearAssists();
+      ClearSelection();
       SetupBoard();
       gameMode = MODE_ASSIST;
       break;
@@ -63,8 +65,10 @@ void HandleKeypress(char keyPress)
           }
         case MODE_ASSIST:
           {
-            if (keyPress <= 9)
+            if (keyPress <= 9) {
               Assist(keyPress);
+              selectedDigit = keyPress;
+            }
             break;
           }
       }
@@ -75,14 +79,15 @@ void HandleKeypress(char keyPress)
 void WaitForKeypress()
 {
   int value = analogRead(A0);
-  //Serial.println(value);
+  Serial.println(value);
   for (int i = 0; i < 16; i++)
   {
     // Is A0 close enough to one of the keypad values?
     if ( abs(value - thresholds[i]) < 4)
     {
       // Yes, translate the index of that value to the actual name of the key
-      //Serial.println(keypad[i]);
+      Serial.print("   ");
+      Serial.println(keypad[i],DEC);
       //FillAll(keypad[i]);
       HandleKeypress(keypad[i]);
       // Wait until they release the button
