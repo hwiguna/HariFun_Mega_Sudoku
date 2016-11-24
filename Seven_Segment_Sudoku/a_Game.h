@@ -1,9 +1,9 @@
 //-- Game States --
-#define MODE_UNKNOWN 0
+//#define MODE_UNKNOWN 0
 #define MODE_PICK_BOX 1
 #define MODE_PICK_CELL 2
 #define MODE_PICK_DIGIT 3
-#define MODE_ASSIST 4
+#define MODE_ASSIST 0
 
 volatile byte gameMode = MODE_UNKNOWN;
 volatile byte selectedBox = 0;

@@ -18,27 +18,22 @@ void HandleKeypress(char keyPress)
       ClearSelection();
       gameMode = MODE_PICK_BOX;
       break;
-    case KEY_B: // Cheat
-      ClearSelection();
-      gameMode = MODE_ASSIST;
-      break;
-    case KEY_C:
+    case KEY_B: // ???
+    case KEY_C: // ???
     case KEY_D: // Clear
       RemoveWrong();
       ClearIsWrongs();
       ClearAssists();
-      gameMode = MODE_UNKNOWN;
+      gameMode = MODE_ASSIST;
       break;
-    case KEY_STAR:
+    case KEY_STAR: // New Game
       RemoveWrong();
       ClearIsWrongs();
       ClearAssists();
       SetupBoard();
-      gameMode = MODE_UNKNOWN;
+      gameMode = MODE_ASSIST;
       break;
-    case KEY_HASH:
-      ClearSelection();
-      gameMode = MODE_UNKNOWN;
+    case KEY_HASH: // ???
       break;
     default:
       switch (gameMode) {
