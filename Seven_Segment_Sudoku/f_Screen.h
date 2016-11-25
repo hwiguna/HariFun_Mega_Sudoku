@@ -1,6 +1,13 @@
 //== Digit bitmaps ==
+// The display is mounted upside down because I wanted to avoid people from interpreting the decimal point as a decimal point.
+// H  -D- 
+//   C   E
+//    -G- 
+//   B   F
+//    -A- 
+
 volatile byte digitBits[] = {
-  B00000000, // 0
+  B00000000, // 0 -> (space)
   B00001100, // 1
   B11011010, // 2
   B10011110, // 3
@@ -10,7 +17,40 @@ volatile byte digitBits[] = {
   B00011100, // 7
   B11111110, // 8
   B10111110, // 9
-  B00000010, // -
+  B00000010, // : -> -
+  B00000000, // ;
+  B00000000, // <
+  B00000000, // =
+  B00000000, // >
+  B00000000, // ?
+  B00000000, // @
+
+  B01111110, // A
+  B11100110, // b
+  B11000010, // c
+  B11001110, // d
+  B11111010, // e
+  B01110010, // F
+  B10111110, // g
+  B01101110, // H
+  B00001100, // I
+  B11001100, // J
+  B01101110, // k*
+  B11100000, // L
+  B01111110, // M*
+  B01000110, // n
+  B11000110, // o
+  B01111010, // P
+  B00111110, // q
+  B01111010, // r
+  B10110110, // S
+  B11100010, // t
+  B11000100, // u
+  B11101100, // V*
+  B11101110, // W*
+  B01101110, // X*
+  B11010111, // Y
+  B11011010, // Z
 };
 
 //-----------------------------------------------------------------
@@ -39,6 +79,12 @@ void DisplayCell(byte cellValue)
   shiftOut(SEG_SER_PIN, SEG_CLK_PIN, LSBFIRST, ~segByte);
 }
 
+void DisplayText(byte cellValue)
+{
+  byte segByte =  digitBits[cellValue];
+  shiftOut(SEG_SER_PIN, SEG_CLK_PIN, LSBFIRST, ~segByte);
+}
+
 void Refresh(void)
 {
   if (--refreshCounter == 0) {
@@ -50,7 +96,10 @@ void Refresh(void)
       for (gRow = 0; gRow < 9; gRow++)
       {
         byte cellValue = sudoku[gRow][gCol];
-        DisplayCell( cellValue ); // Shift the digit bits, last row first
+        if (gameMode == MODE_TEXT)
+          DisplayText(cellValue);
+        else
+          DisplayCell( cellValue ); // Shift the digit bits, last row first
       }
       // We've shifted all 9 vertical digits
       digitalWrite(SEG_LATCH_PIN, HIGH); // Slam all 9 vertical digits to output pins

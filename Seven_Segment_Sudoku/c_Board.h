@@ -256,3 +256,19 @@ void NewGame()
   SetupBoard();
 }
 
+
+void ClearText()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+      sudoku[r][c] = '0'; // 0 = blank space
+}
+
+void DrawText(byte row, byte col, String txt)
+{
+  for (byte c=0; c<txt.length(); c++)
+  {
+    sudoku[row][col+c] = txt[c] - '0';
+  }
+}
+

@@ -12,6 +12,11 @@ void setup() {
   Serial.begin(9600);
   
   randomSeed(analogRead(5));
-  LoadSudoku(); //SetupBoard();
+  //LoadSudoku();
+
+  gameMode = MODE_TEXT;
+  ClearText();  
+  DrawText(0,1,"HELLO");
+  
   SetupTimer();
 }
