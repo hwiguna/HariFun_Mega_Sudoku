@@ -12,6 +12,6 @@ void setup() {
   Serial.begin(9600);
   
   randomSeed(analogRead(5));
-  SetupBoard();
+  LoadSudoku(); //SetupBoard();
   SetupTimer();
 }

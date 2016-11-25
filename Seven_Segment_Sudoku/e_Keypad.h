@@ -13,30 +13,28 @@ char keypad[16] = {1, 2, 3, 10, 4, 5, 6, 11, 7, 8, 9, 12, 14, 0, 15, 13}; // A=1
 void HandleKeypress(char keyPress)
 {
   switch (keyPress) {
-    case KEY_A: // Select
-      ClearAssists();
-      ClearSelection();
+    case KEY_A: // Select Box
+      Clear();
       gameMode = MODE_PICK_BOX;
       break;
+      
     case KEY_B: // ???
     case KEY_C: // ???
     case KEY_D: // Clear
-      ClearAssists();
-      ClearSelection();
-      //RemoveWrong();
-      //ClearIsWrongs();
+      Clear();
+      SaveSudoku();
       gameMode = MODE_ASSIST;
       break;
+      
     case KEY_STAR: // New Game
-      //RemoveWrong();
-      //ClearIsWrongs();
-      ClearAssists();
-      ClearSelection();
-      SetupBoard();
+      NewGame();
       gameMode = MODE_ASSIST;
       break;
-    case KEY_HASH: // ???
+      
+    case KEY_HASH: // Start Over
+      RedoGame();
       break;
+      
     default:
       switch (gameMode) {
         case MODE_PICK_BOX:
@@ -46,6 +44,7 @@ void HandleKeypress(char keyPress)
             gameMode = MODE_PICK_CELL;
             break;
           }
+          
         case MODE_PICK_CELL:
           {
             ClearSelection();
@@ -54,6 +53,7 @@ void HandleKeypress(char keyPress)
             if (!bitRead(cellValue, IS_PUZZLE_BIT)) gameMode = MODE_PICK_DIGIT;
             break;
           }
+          
         case MODE_PICK_DIGIT:
           {
             selectedDigit = keyPress;
@@ -61,6 +61,7 @@ void HandleKeypress(char keyPress)
             byte selectedRow = GetSelectedRow(selectedBox, selectedCell);
             byte selectedCol = GetSelectedCol(selectedBox, selectedCell);
             ValidateCell(selectedRow, selectedCol);
+            SaveSudoku();
             break;
           }
         case MODE_ASSIST:
@@ -79,15 +80,15 @@ void HandleKeypress(char keyPress)
 void WaitForKeypress()
 {
   int value = analogRead(A0);
-  Serial.println(value);
+  //Serial.println(value);
   for (int i = 0; i < 16; i++)
   {
     // Is A0 close enough to one of the keypad values?
     if ( abs(value - thresholds[i]) < 4)
     {
       // Yes, translate the index of that value to the actual name of the key
-      Serial.print("   ");
-      Serial.println(keypad[i],DEC);
+      //Serial.print("   ");
+      //Serial.println(keypad[i],DEC);
       //FillAll(keypad[i]);
       HandleKeypress(keypad[i]);
       // Wait until they release the button

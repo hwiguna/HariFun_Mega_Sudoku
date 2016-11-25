@@ -9,6 +9,7 @@ const byte SEG_CLK_PIN = 11;
 const byte SEG_LATCH_PIN = 12;
 const byte SEG_SER_PIN = 13;
 
+#include <EEPROM.h>
 #include <avr/pgmspace.h>
 #include "a_Game.h"
 #include "b_Puzzles.h"

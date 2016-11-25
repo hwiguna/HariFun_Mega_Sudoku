@@ -14,6 +14,25 @@ volatile byte refreshCounter = 0;
 
 //== Functions ==
 
+void SaveSudoku()
+{
+  //-- Let's not save the board when we have wrong digits on them --
+  bool hasWrong = false;
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++) {
+      if (bitRead(sudoku[r][c], IS_WRONG_BIT)) hasWrong = true;
+      bitClear(sudoku[r][c], IS_DOT_ON_BIT); // Let's not save the dot either.
+    }
+
+  if (!hasWrong)
+    EEPROM.put(0, sudoku);
+}
+
+void LoadSudoku()
+{
+  EEPROM.get(0, sudoku);
+}
+
 void SetupBoard()
 {
   SudokuGenerate();
@@ -23,6 +42,8 @@ void SetupBoard()
       if (sudoku[r][c] != 0) bitSet(sudoku[r][c], IS_PUZZLE_BIT); // Set cell's "Is Puzzle bit" on cells containing the original puzzle digits
       bitSet(sudoku[r][c], IS_VISIBLE_BIT); // Set all cells to be visible.
     }
+
+  SaveSudoku();
 }
 
 byte GetDigit(byte cellValue)
@@ -177,6 +198,12 @@ void ClearAssists()
     }
 }
 
+void Clear()
+{
+  ClearAssists();
+  ClearSelection();
+}
+
 void Assist(byte selectedDigit)
 {
   ClearAssists();
@@ -201,8 +228,31 @@ void Assist(byte selectedDigit)
       byte cellDigit = GetDigit(sudoku[r][c]);
       if (cellDigit == 0) {
         sudoku[r][c] = selectedDigit;
-        MarkAsWrong(r,c);
+        MarkAsWrong(r, c);
       }
     }
+}
+
+void RedoGame()
+{
+  for (byte r = 0; r < 9; r++)
+    for (byte c = 0; c < 9; c++)
+    {
+      byte cellDigit = GetDigit(sudoku[r][c]);
+      if (bitRead(sudoku[r][c], IS_PUZZLE_BIT))
+      {
+        sudoku[r][c] = cellDigit;
+        bitSet(sudoku[r][c], IS_PUZZLE_BIT);
+        bitSet(sudoku[r][c], IS_VISIBLE_BIT);
+      }
+      else
+        sudoku[r][c] = 0;
+    }
+  SaveSudoku();
+}
+
+void NewGame()
+{
+  SetupBoard();
 }
 
