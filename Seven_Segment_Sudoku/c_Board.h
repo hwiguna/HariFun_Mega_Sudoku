@@ -268,7 +268,7 @@ void DrawText(byte row, byte col, String txt)
 {
   for (byte c=0; c<txt.length(); c++)
   {
-    sudoku[row][col+c] = txt[c] - '0';
+    sudoku[row][col+c] = txt[c];
   }
 }
 

@@ -32,24 +32,24 @@ volatile byte digitBits[] = {
   B11111010, // e
   B01110010, // F
   B10111110, // g
-  B01101110, // H
+  B01100110, // H
   B00001100, // I
   B11001100, // J
   B01101110, // k*
   B11100000, // L
-  B01111110, // M*
+  B01111100, // M*
   B01000110, // n
   B11000110, // o
   B01111010, // P
   B00111110, // q
-  B01111010, // r
+  B01111000, // r
   B10110110, // S
   B11100010, // t
   B11000100, // u
   B11101100, // V*
-  B11101110, // W*
+  B11101100, // W*
   B01101110, // X*
-  B11010111, // Y
+  B10101110, // Y
   B11011010, // Z
 };
 
@@ -81,7 +81,7 @@ void DisplayCell(byte cellValue)
 
 void DisplayText(byte cellValue)
 {
-  byte segByte =  digitBits[cellValue];
+  byte segByte =  digitBits[cellValue-'0'];
   shiftOut(SEG_SER_PIN, SEG_CLK_PIN, LSBFIRST, ~segByte);
 }
 
@@ -114,7 +114,7 @@ void Refresh(void)
     if (gameMode == MODE_PICK_DIGIT) PleaseSelectDigit_Blink();
     //if (gameMode == MODE_VALIDATE) ValidateSudoku();
     //if (gameMode == MODE_ASSIST) AssistDimming(); else 
-    AnimateBlinks(); 
+    if (gameMode!=MODE_TEXT) AnimateBlinks(); 
   }
 }
 
