@@ -16,12 +16,19 @@ void setup() {
 
   gameMode = MODE_TEXT;
   ClearText();  
-  DrawText(0,0,"123456789");
-  DrawText(1,0,"ABCDEFGHI");
-  DrawText(2,0,"JKLMNOPQR");
-  DrawText(3,0,"STUVWXYZ0");
-
-  DrawText(5,0,"0MMEGA");
-  DrawText(6,0,"0SUDOKU");
+//  DrawText(0,0,"123456789");
+//  DrawText(1,0,"ABCDEFGHI");
+//  DrawText(2,0,"JKLMNOPQR");
+//  DrawText(3,0,"STUVWXYZ0");
+//
+//  DrawText(5,0,"abcdefghi");
+//  DrawText(6,0,"jklmnopqr");
+//  DrawText(7,0,"stuvwxyz0");
+  
+  DrawText(1,1,"HarlFun");
+  DrawText(2,3,"146");
+  
+  DrawText(4,1,"r;EGA");
+  DrawText(5,1,"Sudoku");
   SetupTimer();
 }
