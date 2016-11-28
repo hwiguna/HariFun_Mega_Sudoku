@@ -12,10 +12,11 @@ void setup() {
   Serial.begin(9600);
   
   randomSeed(analogRead(5));
-  //LoadSudoku();
+  LoadSudoku();
+  gameMode = MODE_ASSIST;
 
-  gameMode = MODE_TEXT;
-  ClearText();  
+//  gameMode = MODE_TEXT;
+//  ClearText();  
 //  DrawText(0,0,"123456789");
 //  DrawText(1,0,"ABCDEFGHI");
 //  DrawText(2,0,"JKLMNOPQR");
@@ -25,10 +26,10 @@ void setup() {
 //  DrawText(6,0,"jklmnopqr");
 //  DrawText(7,0,"stuvwxyz0");
   
-  DrawText(1,1,"HarlFun");
-  DrawText(2,3,"146");
-  
-  DrawText(4,1,"r;EGA");
-  DrawText(5,1,"Sudoku");
+//  DrawText(1,1,"HarlFun");
+//  DrawText(2,3,"146");
+//  
+//  DrawText(4,1,"r;EGA");
+//  DrawText(5,1,"Sudoku");
   SetupTimer();
 }

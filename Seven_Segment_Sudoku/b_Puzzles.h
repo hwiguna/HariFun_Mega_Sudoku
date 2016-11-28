@@ -130,13 +130,13 @@ void SudokuGenerate()
     sudoku[r][c] = puzzle[i] == '.' ? 0 : puzzle[i] - '0';
   }
   
-//  SudokuJumble();
-//
-//  // Randomly flip horizontally, vertically, rotate
-//  if (random(0, 1)) SudokuHFlip();
-//  if (random(0, 1)) SudokuVFlip();
-//  for (byte r = 0; r < random(0,4); r++)
-//    SudokuRotateClockwise();
+  SudokuJumble();
+
+  // Randomly flip horizontally, vertically, rotate
+  if (random(0, 1)) SudokuHFlip();
+  if (random(0, 1)) SudokuVFlip();
+  for (byte r = 0; r < random(0,4); r++)
+    SudokuRotateClockwise();
 
   //PrintSudoku();
 
