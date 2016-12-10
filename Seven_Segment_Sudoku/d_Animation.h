@@ -140,4 +140,3 @@ void AssistBlink()
     blinkCountDown = blinkIsOn ? 12 : dimSpeed;
   }
 }
-
