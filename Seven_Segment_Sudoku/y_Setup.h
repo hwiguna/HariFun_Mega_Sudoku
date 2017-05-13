@@ -12,13 +12,24 @@ void setup() {
   Serial.begin(9600);
   
   randomSeed(analogRead(5));
-  LoadSudoku();
-  gameMode = MODE_ASSIST;
+//  LoadSudoku();
+//  gameMode = MODE_ASSIST;
 
   SetupTimer();
 
-//  gameMode = MODE_TEXT;
-//  ClearText();  
+  gameMode = MODE_TEXT;
+  ClearText();  
+
+//0 Mega
+//1 Sudoku
+//2
+
+  DrawText(3,3,   "The");
+  DrawText(4,2,  "FinaL");
+  DrawText(5,1, "Episode");
+
+  DrawText(7,1,"Harl0Fun");
+  DrawText(8,3,  "146");
 
 //  DrawText(1,1,"Harl0Fun");
 //  DrawText(2,3,"146");
